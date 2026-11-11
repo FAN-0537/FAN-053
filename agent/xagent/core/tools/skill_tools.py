@@ -16,7 +16,7 @@ def register_skill_tools(registry: ToolRegistry, skills: SkillManager) -> None:
             description=(
                 "加载指定 Skill 的完整说明，或读取该 Skill 目录中的附件文件。"
                 "只提供 name 时读取 SKILL.md 全文；同时提供 filename 时只读取附件文件。"
-                "filename 支持相对于 Skill 目录、项目根目录的路径或绝对路径；"
+                "filename 必须是相对于该 Skill 目录的路径（含仅文件名），不允许越出 Skill 目录；"
                 "只提供文件名时会递归搜索该 Skill 目录，若存在多个同名文件则返回候选路径。"
             ),
             parameters={

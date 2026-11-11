@@ -94,12 +94,12 @@ D:\xie\anythingllm-mcp\
 - `404` → 「工作区不存在或 slug 错误」
 - 网络/超时 → 连接失败提示
 
-### 4.2 MVP 明确不做
-- ❌ 多工作区选择/切换
-- ❌ 流式回答（SSE / stream-chat）
-- ❌ 独立的 vector-search 工具
-- ❌ 文档上传 / 工作区管理类工具
-- ❌ 跨工作区检索
+### 4.2 初版范围之外（后续实现状态）
+- ✅ 多工作区选择/切换（`list_workspaces` + `workspace_slug` 参数）
+- ❌ 流式回答（SSE / stream-chat）仍未实现
+- ✅ 独立的 vector-search 工具（`search_workspace`）
+- ✅ 文档上传 / 工作区管理类工具（`upload_document`、`vectorize_workspace`）
+- ❌ 跨工作区检索仍未实现
 
 ---
 
