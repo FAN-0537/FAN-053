@@ -1,9 +1,17 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
+    "Bazi-MCP": {
+      "type": "remote",
+      "url": "https://mcp.api-inference.modelscope.net/YOUR_ENDPOINT_ID/mcp",
+      "enabled": true
+    },
     "pet-hospital": {
       "type": "local",
-      "command": ["python", "pet-hospital/mcp/main.py"],
+      "command": [
+        "python",
+        "pethospitalMCP/pet-hospital-mcp-teaching-main/pet-hospital-mcp-server/server.py"
+      ],
       "environment": {
         "PYTHONUTF8": "1"
       },
@@ -11,7 +19,10 @@
     },
     "anythingllm": {
       "type": "local",
-      "command": ["python", "anythingllm-mcp/server.py"],
+      "command": [
+        "python",
+        "anythingllm_mcp1/server.py"
+      ],
       "environment": {
         "PYTHONUTF8": "1"
       },

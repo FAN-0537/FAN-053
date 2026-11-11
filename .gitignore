@@ -1,33 +1,38 @@
+# 环境变量 / 密钥
+.env
+.env.local
+*.env
+config.ini
+
 # Python
 __pycache__/
 *.py[cod]
+*.egg-info/
 .venv/
 venv/
-.idea/
-.vscode/
-.agents/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
 
-# Secrets / local config
-.env
-*.key
-*.pem
-config.local.ini
-
-# Binaries / data
-*.exe
+# 数据库
 *.db
+*.db.tmp
 *.sqlite
 *.sqlite3
-dist/
-build/
+
+# 运行时产物（会话、上下文归档）
+.agents/context/
+.agents/sessions/
+
+# Node
 node_modules/
 
-# OS
-.DS_Store
-Thumbs.db
+# 二进制 / 构建产物
+*.exe
+dist/
+build/
 
-# Logs
-*.log
+# 编辑器 / 系统
+.DS_Store
+.idea/
+.vscode/

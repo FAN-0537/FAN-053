@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AnythingLLM 控制台</title>
+  <style>
+:root {
+  --bg: #0f172a;
+  --panel: #ffffff;
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d8dee9;
+  --primary: #2563eb;
+  --primary-ink: #ffffff;
+  --ok: #067647;
+  --warn: #b54708;
+  --err: #b42318;
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(1200px 500px at 10% -10%, #1e3a8a 0%, transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, #0f766e 0%, transparent 55%),
+    var(--bg);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px clamp(16px, 5vw, 56px) 8px;
+  color: #e2e8f0;
+}
+
+.topbar h1 { margin: 0; font-size: clamp(20px, 2.4vw, 28px); }
+.sub { margin: 6px 0 0; color: #b8c4d8; font-size: 13px; }
+
+.pill {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #cbd5e1;
+  white-space: nowrap;
+}
+.pill[data-state="ok"] { background: #064e3b; color: #a7f3d0; border-color: #10b981; }
+.pill[data-state="loading"] { background: #78350f; color: #fde68a; border-color: #f59e0b; }
+.pill[data-state="error"] { background: #7f1d1d; color: #fecaca; border-color: #ef4444; }
+
+.layout {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+  padding: 16px clamp(16px, 5vw, 56px) 48px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.card {
+  grid-column: span 6;
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: 0 18px 40px rgba(2, 8, 23, 0.28);
+}
+
+.connect-card { grid-column: span 7; }
+.chat-card { grid-column: span 12; }
+
+@media (max-width: 900px) {
+  .card, .connect-card, .chat-card { grid-column: span 12; }
+  .topbar { flex-direction: column; align-items: flex-start; }
+}
+
+h2 { margin: 0 0 12px; font-size: 16px; }
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.card-head h2 { margin: 0; }
+
+label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+input, select, textarea {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+  color: var(--ink);
+  background: #fbfcfe;
+}
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid rgba(37, 99, 235, 0.28);
+  border-color: var(--primary);
+}
+
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+button {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font: inherit;
+  cursor: pointer;
+}
+button:disabled { opacity: 0.55; cursor: not-allowed; }
+button.primary { background: var(--primary); color: var(--primary-ink); }
+button.ghost { background: transparent; border-color: var(--line); color: var(--ink); }
+
+.hint, .meta { font-size: 12px; color: var(--muted); }
+.status { min-height: 20px; margin-top: 10px; font-size: 13px; }
+.status[data-state="loading"] { color: var(--warn); }
+.status[data-state="ok"] { color: var(--ok); }
+.status[data-state="error"] { color: var(--err); }
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 160px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 12px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  background: #f8fafc;
+  margin-bottom: 12px;
+}
+
+.msg { max-width: 92%; padding: 10px 12px; border-radius: 10px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+.msg.user { align-self: flex-end; background: #dbeafe; }
+.msg.assistant { align-self: flex-start; background: #ffffff; border: 1px solid var(--line); }
+.msg.error { align-self: stretch; background: #fef3f2; border: 1px solid #fecdca; color: var(--err); }
+.msg .sources { margin-top: 8px; font-size: 12px; color: var(--muted); }
+.msg .source { padding: 6px 8px; border-left: 3px solid var(--primary); background: #f1f5f9; margin-top: 6px; }
+
+.chat-form { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
+.chat-form textarea { resize: vertical; }
+.upload-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.upload-form input[type="file"] { flex: 1 1 260px; }
+
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>AnythingLLM 控制台</h1>
+      <p class="sub">直接调用本机 AnythingLLM REST API · 密钥只保存在当前标签页</p>
+    </div>
+    <div id="connectionState" class="pill" data-state="idle">未连接</div>
+  </header>
+
+  <main class="layout">
+    <section class="card connect-card" aria-labelledby="connectTitle">
+      <h2 id="connectTitle">连接设置</h2>
+      <label>
+        API 地址
+        <input id="baseUrl" type="url" value="http://localhost:3001/api" autocomplete="off" />
+      </label>
+      <label>
+        API Key
+        <input id="apiKey" type="password" placeholder="在 AnythingLLM Settings → Developer API 创建" autocomplete="off" />
+      </label>
+      <div class="row">
+        <button id="connectBtn" class="primary">连接并加载工作区</button>
+        <button id="disconnectBtn" class="ghost">清除密钥</button>
+      </div>
+      <p class="hint">密钥仅存于 sessionStorage，关闭标签页即失效；不会写入代码或仓库。</p>
+    </section>
+
+    <section class="card" aria-labelledby="workspaceTitle">
+      <div class="card-head">
+        <h2 id="workspaceTitle">工作区</h2>
+        <button id="refreshBtn" class="ghost" disabled>刷新</button>
+      </div>
+      <label>
+        当前工作区
+        <select id="workspaceSelect" disabled>
+          <option value="">请先连接</option>
+        </select>
+      </label>
+      <div id="workspaceMeta" class="meta">尚未加载工作区。</div>
+    </section>
+
+    <section class="card chat-card" aria-labelledby="chatTitle">
+      <div class="card-head">
+        <h2 id="chatTitle">对话 / 检索问答</h2>
+        <select id="modeSelect" aria-label="回答模式">
+          <option value="query">query · 单轮检索</option>
+          <option value="chat">chat · 多轮会话</option>
+        </select>
+      </div>
+      <div id="messages" class="messages" aria-live="polite"></div>
+      <form id="chatForm" class="chat-form">
+        <textarea id="question" rows="3" placeholder="例如：总结一下工作区里关于部署的文档" required></textarea>
+        <button id="sendBtn" class="primary" type="submit">发送</button>
+      </form>
+      <div id="chatStatus" class="status" role="status"></div>
+    </section>
+
+    <section class="card" aria-labelledby="uploadTitle">
+      <h2 id="uploadTitle">上传文档并向量化</h2>
+      <form id="uploadForm" class="upload-form">
+        <input id="fileInput" type="file" required />
+        <button id="uploadBtn" class="primary" type="submit" disabled>上传并加入当前工作区</button>
+      </form>
+      <div id="uploadStatus" class="status" role="status"></div>
+    </section>
+  </main>
+
+  <script>
+"use strict";
+
+const state = {
+  baseUrl: sessionStorage.getItem("anythingllm.baseUrl") || "http://localhost:3001/api",
+  apiKey: sessionStorage.getItem("anythingllm.apiKey") || "",
+  workspaces: [],
+  slug: "",
+  sessionId: null,
+  busy: false,
+};
+
+const $ = (id) => document.getElementById(id);
+
+function setConnection(stateName, text) {
+  const pill = $("connectionState");
+  pill.dataset.state = stateName;
+  pill.textContent = text;
+}
+
+function setStatus(id, stateName, text) {
+  const node = $(id);
+  node.dataset.state = stateName;
+  node.textContent = text;
+}
+
+function normalizeBase(value) {
+  return value.trim().replace(/\/+$/, "");
+}
+
+async function api(path, options = {}) {
+  if (!state.apiKey) throw new Error("请先填写 API Key");
+  if (!state.baseUrl) throw new Error("请先填写 API 地址");
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 60000);
+  const headers = {
+    Accept: "application/json",
+    Authorization: `Bearer ${state.apiKey}`,
+  };
+  const init = { ...options, headers, signal: controller.signal };
+  if (options.body && !(options.body instanceof FormData)) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  let response;
+  try {
+    response = await fetch(`${state.baseUrl}${path}`, init);
+  } catch (error) {
+    if (error.name === "AbortError") throw new Error("请求超时（60 秒）");
+    throw new Error(`无法连接 AnythingLLM：${error.message}`);
+  } finally {
+    clearTimeout(timer);
+  }
+
+  const text = await response.text();
+  let data = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = null;
+  }
+
+  if (!response.ok) {
+    const message =
+      (data && (data.error || data.message || data.detail)) ||
+      text.slice(0, 300) ||
+      `HTTP ${response.status}`;
+    const error = new Error(
+      response.status === 403 || response.status === 401
+        ? `鉴权失败：${message}（请检查 API Key）`
+        : message
+    );
+    error.status = response.status;
+    throw error;
+  }
+  return data;
+}
+
+function renderWorkspaces(workspaces) {
+  const select = $("workspaceSelect");
+  select.replaceChildren();
+  if (!workspaces.length) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "没有工作区";
+    select.append(option);
+    select.disabled = true;
+    $("workspaceMeta").textContent = "AnythingLLM 中还没有工作区。";
+    return;
+  }
+
+  for (const workspace of workspaces) {
+    const option = document.createElement("option");
+    option.value = workspace.slug || workspace.name || "";
+    option.textContent = `${workspace.name || workspace.slug}（${workspace.slug || "no-slug"}）`;
+    select.append(option);
+  }
+  select.disabled = false;
+  state.slug = select.value;
+  select.dispatchEvent(new Event("change"));
+}
+
+async function connect() {
+  state.baseUrl = normalizeBase($("baseUrl").value);
+  state.apiKey = $("apiKey").value.trim();
+  if (!state.apiKey) {
+    setStatus("chatStatus", "error", "请填写 API Key。");
+    return;
+  }
+
+  setConnection("loading", "连接中…");
+  $("connectBtn").disabled = true;
+  try {
+    const data = await api("/v1/workspaces");
+    state.workspaces = Array.isArray(data?.workspaces)
+      ? data.workspaces
+      : Array.isArray(data)
+        ? data
+        : [];
+    sessionStorage.setItem("anythingllm.baseUrl", state.baseUrl);
+    sessionStorage.setItem("anythingllm.apiKey", state.apiKey);
+    renderWorkspaces(state.workspaces);
+    setConnection("ok", `已连接 · ${state.workspaces.length} 个工作区`);
+    $("refreshBtn").disabled = false;
+    $("uploadBtn").disabled = false;
+    setStatus("chatStatus", "ok", "连接成功，可以开始提问。");
+  } catch (error) {
+    setConnection("error", "连接失败");
+    setStatus("chatStatus", "error", error.message);
+    $("workspaceSelect").disabled = true;
+  } finally {
+    $("connectBtn").disabled = false;
+  }
+}
+
+async function refreshWorkspaces() {
+  if (!state.apiKey) return;
+  setConnection("loading", "刷新中…");
+  try {
+    const data = await api("/v1/workspaces");
+    state.workspaces = Array.isArray(data?.workspaces)
+      ? data.workspaces
+      : Array.isArray(data)
+        ? data
+        : [];
+    renderWorkspaces(state.workspaces);
+    setConnection("ok", `已连接 · ${state.workspaces.length} 个工作区`);
+  } catch (error) {
+    setConnection("error", "刷新失败");
+    setStatus("chatStatus", "error", error.message);
+  }
+}
+
+function onWorkspaceChange() {
+  state.slug = $("workspaceSelect").value;
+  state.sessionId = null;
+  const workspace = state.workspaces.find(
+    (item) => (item.slug || item.name) === state.slug
+  );
+  const count = Array.isArray(workspace?.documents)
+    ? workspace.documents.length
+    : 0;
+  $("workspaceMeta").textContent = state.slug
+    ? `slug：${state.slug} · 已挂载文档：${count}`
+    : "尚未选择工作区。";
+}
+
+function appendMessage(role, text, sources = []) {
+  const node = document.createElement("div");
+  node.className = `msg ${role}`;
+  node.textContent = text;
+  if (sources.length) {
+    const box = document.createElement("div");
+    box.className = "sources";
+    for (const source of sources.slice(0, 5)) {
+      const item = document.createElement("div");
+      item.className = "source";
+      const title = source.title || source.name || "引用片段";
+      const chunk = source.chunk || source.text || "";
+      item.textContent = `${title}${chunk ? `：${String(chunk).slice(0, 300)}` : ""}`;
+      box.append(item);
+    }
+    node.append(box);
+  }
+  const messages = $("messages");
+  messages.append(node);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+async function sendQuestion(event) {
+  event.preventDefault();
+  if (state.busy) return;
+  const question = $("question").value.trim();
+  if (!question) return;
+  if (!state.slug) {
+    setStatus("chatStatus", "error", "请先连接并选择工作区。");
+    return;
+  }
+
+  state.busy = true;
+  $("sendBtn").disabled = true;
+  $("question").value = "";
+  appendMessage("user", question);
+  setStatus("chatStatus", "loading", "正在等待 AnythingLLM 回答…");
+
+  const mode = $("modeSelect").value;
+  const payload = { message: question, mode };
+  if (mode === "chat" && state.sessionId) payload.sessionId = state.sessionId;
+
+  try {
+    const data = await api(`/v1/workspace/${encodeURIComponent(state.slug)}/chat`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    const answer =
+      data?.textResponse || data?.response || data?.answer || "（没有返回文本）";
+    appendMessage("assistant", answer, data?.sources || []);
+    if (mode === "chat" && data?.id) state.sessionId = data.id;
+    setStatus("chatStatus", "ok", "回答完成。");
+  } catch (error) {
+    appendMessage("error", error.message);
+    setStatus("chatStatus", "error", error.message);
+  } finally {
+    state.busy = false;
+    $("sendBtn").disabled = false;
+  }
+}
+
+async function uploadDocument(event) {
+  event.preventDefault();
+  const file = $("fileInput").files?.[0];
+  if (!file) return;
+  if (!state.slug) {
+    setStatus("uploadStatus", "error", "请先连接并选择工作区。");
+    return;
+  }
+
+  $("uploadBtn").disabled = true;
+  setStatus("uploadStatus", "loading", `正在上传 ${file.name}…`);
+  try {
+    const form = new FormData();
+    form.append("file", file);
+    const uploaded = await api("/v1/document/upload", {
+      method: "POST",
+      body: form,
+    });
+    const documents = uploaded?.documents || [];
+    const location =
+      (documents[0] && (documents[0].location || documents[0].name)) ||
+      uploaded?.location ||
+      uploaded?.name ||
+      "";
+    if (!location) throw new Error("上传成功但未返回文档 location。");
+
+    setStatus("uploadStatus", "loading", "正在加入工作区并向量化…");
+    await api(`/v1/workspace/${encodeURIComponent(state.slug)}/update-embeddings`, {
+      method: "POST",
+      body: JSON.stringify({ adds: [location], deletes: [] }),
+    });
+    setStatus("uploadStatus", "ok", `已上传并加入工作区：${location}`);
+    $("fileInput").value = "";
+    await refreshWorkspaces();
+  } catch (error) {
+    setStatus("uploadStatus", "error", error.message);
+  } finally {
+    $("uploadBtn").disabled = false;
+  }
+}
+
+function disconnect() {
+  state.apiKey = "";
+  state.workspaces = [];
+  state.slug = "";
+  state.sessionId = null;
+  sessionStorage.removeItem("anythingllm.apiKey");
+  $("apiKey").value = "";
+  $("workspaceSelect").replaceChildren();
+  $("workspaceSelect").disabled = true;
+  $("workspaceMeta").textContent = "已清除密钥。";
+  $("messages").replaceChildren();
+  $("refreshBtn").disabled = true;
+  $("uploadBtn").disabled = true;
+  setConnection("idle", "未连接");
+  setStatus("chatStatus", "ok", "已断开。");
+}
+
+function boot() {
+  $("baseUrl").value = state.baseUrl;
+  $("apiKey").value = state.apiKey;
+  $("connectBtn").addEventListener("click", connect);
+  $("disconnectBtn").addEventListener("click", disconnect);
+  $("refreshBtn").addEventListener("click", refreshWorkspaces);
+  $("workspaceSelect").addEventListener("change", onWorkspaceChange);
+  $("chatForm").addEventListener("submit", sendQuestion);
+  $("uploadForm").addEventListener("submit", uploadDocument);
+
+  if (state.apiKey) {
+    connect();
+  }
+}
+
+boot();
+
+  </script>
+</body>
+</html>
