@@ -1,0 +1,118 @@
+Screen {
+    layout: vertical;
+    background: $surface;
+}
+
+Header {
+    background: $primary;
+    color: $text;
+}
+
+#body {
+    height: 1fr;
+}
+
+#sidebar {
+    width: 32;
+    height: 1fr;
+    border: round $primary;
+    padding: 0 1;
+    background: $panel;
+}
+
+.sidebar-title {
+    height: 1;
+    text-style: bold;
+    color: $primary;
+}
+
+#mcp-scroll {
+    height: 1fr;
+    scrollbar-gutter: stable;
+}
+
+#mcp-list {
+    height: auto;
+}
+
+#main {
+    width: 1fr;
+    height: 1fr;
+}
+
+#chat {
+    height: 1fr;
+    border: round $primary;
+    padding: 0 1;
+    background: $surface;
+    scrollbar-gutter: stable;
+}
+
+.message {
+    height: auto;
+    width: 100%;
+    margin: 0 0 1 0;
+    padding: 0 1;
+    background: $panel;
+}
+
+.message-title {
+    height: auto;
+    text-style: bold;
+}
+
+.message-body {
+    height: auto;
+    margin: 0;
+}
+
+.message.user {
+    border-left: thick $accent;
+}
+
+.message.assistant {
+    border-left: thick $success;
+}
+
+.message.tool {
+    border-left: thick $warning;
+}
+
+.message.result {
+    border-left: thick $secondary;
+}
+
+.message.error {
+    border-left: thick $error;
+}
+
+.message.system {
+    border-left: thick $primary;
+}
+
+#completion {
+    display: none;
+    height: auto;
+    max-height: 9;
+    margin: 0;
+    border: round $accent;
+    background: $panel;
+}
+
+#context {
+    height: 1;
+    padding: 0 1;
+    background: $panel;
+    text-style: bold;
+}
+
+#status {
+    height: 1;
+    padding: 0 1;
+    color: $text-muted;
+    background: $panel;
+}
+
+#prompt {
+    margin: 0;
+}

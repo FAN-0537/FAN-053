@@ -1,0 +1,21 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "pet-hospital": {
+      "type": "local",
+      "command": ["python", "pet-hospital/mcp/main.py"],
+      "environment": {
+        "PYTHONUTF8": "1"
+      },
+      "enabled": true
+    },
+    "anythingllm": {
+      "type": "local",
+      "command": ["python", "anythingllm-mcp/server.py"],
+      "environment": {
+        "PYTHONUTF8": "1"
+      },
+      "enabled": true
+    }
+  }
+}

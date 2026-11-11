@@ -1,0 +1,140 @@
+:root {
+  --bg: #0f172a;
+  --panel: #ffffff;
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d8dee9;
+  --primary: #2563eb;
+  --primary-ink: #ffffff;
+  --ok: #067647;
+  --warn: #b54708;
+  --err: #b42318;
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(1200px 500px at 10% -10%, #1e3a8a 0%, transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, #0f766e 0%, transparent 55%),
+    var(--bg);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px clamp(16px, 5vw, 56px) 8px;
+  color: #e2e8f0;
+}
+
+.topbar h1 { margin: 0; font-size: clamp(20px, 2.4vw, 28px); }
+.sub { margin: 6px 0 0; color: #b8c4d8; font-size: 13px; }
+
+.pill {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #cbd5e1;
+  white-space: nowrap;
+}
+.pill[data-state="ok"] { background: #064e3b; color: #a7f3d0; border-color: #10b981; }
+.pill[data-state="loading"] { background: #78350f; color: #fde68a; border-color: #f59e0b; }
+.pill[data-state="error"] { background: #7f1d1d; color: #fecaca; border-color: #ef4444; }
+
+.layout {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+  padding: 16px clamp(16px, 5vw, 56px) 48px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.card {
+  grid-column: span 6;
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: 0 18px 40px rgba(2, 8, 23, 0.28);
+}
+
+.connect-card { grid-column: span 7; }
+.chat-card { grid-column: span 12; }
+
+@media (max-width: 900px) {
+  .card, .connect-card, .chat-card { grid-column: span 12; }
+  .topbar { flex-direction: column; align-items: flex-start; }
+}
+
+h2 { margin: 0 0 12px; font-size: 16px; }
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.card-head h2 { margin: 0; }
+
+label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+input, select, textarea {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+  color: var(--ink);
+  background: #fbfcfe;
+}
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid rgba(37, 99, 235, 0.28);
+  border-color: var(--primary);
+}
+
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+button {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font: inherit;
+  cursor: pointer;
+}
+button:disabled { opacity: 0.55; cursor: not-allowed; }
+button.primary { background: var(--primary); color: var(--primary-ink); }
+button.ghost { background: transparent; border-color: var(--line); color: var(--ink); }
+
+.hint, .meta { font-size: 12px; color: var(--muted); }
+.status { min-height: 20px; margin-top: 10px; font-size: 13px; }
+.status[data-state="loading"] { color: var(--warn); }
+.status[data-state="ok"] { color: var(--ok); }
+.status[data-state="error"] { color: var(--err); }
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 160px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 12px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  background: #f8fafc;
+  margin-bottom: 12px;
+}
+
+.msg { max-width: 92%; padding: 10px 12px; border-radius: 10px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+.msg.user { align-self: flex-end; background: #dbeafe; }
+.msg.assistant { align-self: flex-start; background: #ffffff; border: 1px solid var(--line); }
+.msg.error { align-self: stretch; background: #fef3f2; border: 1px solid #fecdca; color: var(--err); }
+.msg .sources { margin-top: 8px; font-size: 12px; color: var(--muted); }
+.msg .source { padding: 6px 8px; border-left: 3px solid var(--primary); background: #f1f5f9; margin-top: 6px; }
+
+.chat-form { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
+.chat-form textarea { resize: vertical; }
+.upload-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.upload-form input[type="file"] { flex: 1 1 260px; }

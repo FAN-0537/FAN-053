@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AnythingLLM 控制台</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>AnythingLLM 控制台</h1>
+      <p class="sub">直接调用本机 AnythingLLM REST API · 密钥只保存在当前标签页</p>
+    </div>
+    <div id="connectionState" class="pill" data-state="idle">未连接</div>
+  </header>
+
+  <main class="layout">
+    <section class="card connect-card" aria-labelledby="connectTitle">
+      <h2 id="connectTitle">连接设置</h2>
+      <label>
+        API 地址
+        <input id="baseUrl" type="url" value="http://localhost:3001/api" autocomplete="off" />
+      </label>
+      <label>
+        API Key
+        <input id="apiKey" type="password" placeholder="在 AnythingLLM Settings → Developer API 创建" autocomplete="off" />
+      </label>
+      <div class="row">
+        <button id="connectBtn" class="primary">连接并加载工作区</button>
+        <button id="disconnectBtn" class="ghost">清除密钥</button>
+      </div>
+      <p class="hint">密钥仅存于 sessionStorage，关闭标签页即失效；不会写入代码或仓库。</p>
+    </section>
+
+    <section class="card" aria-labelledby="workspaceTitle">
+      <div class="card-head">
+        <h2 id="workspaceTitle">工作区</h2>
+        <button id="refreshBtn" class="ghost" disabled>刷新</button>
+      </div>
+      <label>
+        当前工作区
+        <select id="workspaceSelect" disabled>
+          <option value="">请先连接</option>
+        </select>
+      </label>
+      <div id="workspaceMeta" class="meta">尚未加载工作区。</div>
+    </section>
+
+    <section class="card chat-card" aria-labelledby="chatTitle">
+      <div class="card-head">
+        <h2 id="chatTitle">对话 / 检索问答</h2>
+        <select id="modeSelect" aria-label="回答模式">
+          <option value="query">query · 单轮检索</option>
+          <option value="chat">chat · 多轮会话</option>
+        </select>
+      </div>
+      <div id="messages" class="messages" aria-live="polite"></div>
+      <form id="chatForm" class="chat-form">
+        <textarea id="question" rows="3" placeholder="例如：总结一下工作区里关于部署的文档" required></textarea>
+        <button id="sendBtn" class="primary" type="submit">发送</button>
+      </form>
+      <div id="chatStatus" class="status" role="status"></div>
+    </section>
+
+    <section class="card" aria-labelledby="uploadTitle">
+      <h2 id="uploadTitle">上传文档并向量化</h2>
+      <form id="uploadForm" class="upload-form">
+        <input id="fileInput" type="file" required />
+        <button id="uploadBtn" class="primary" type="submit" disabled>上传并加入当前工作区</button>
+      </form>
+      <div id="uploadStatus" class="status" role="status"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

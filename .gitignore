@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.idea/
+.vscode/
+.agents/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Secrets / local config
+.env
+*.key
+*.pem
+config.local.ini
+
+# Binaries / data
+*.exe
+*.db
+*.sqlite
+*.sqlite3
+dist/
+build/
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
