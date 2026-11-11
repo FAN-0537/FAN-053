@@ -124,6 +124,7 @@ python main.py
 | 删除文件 | `deleteFile` |
 | 重命名文件/目录 | `renameItem` |
 | 执行命令行 | `RunCli` |
+| 当前日期时间 | `getCurrentDateTime` |
 | 闰年判断 | `isLeapYear` |
 | 读取网页 | `fetchWebPage` |
 | 网络搜索 | `webSearch` |

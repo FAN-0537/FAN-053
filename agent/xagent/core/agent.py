@@ -7,6 +7,8 @@
 from __future__ import annotations
 
 import json
+import logging
+import time
 from collections.abc import AsyncIterator
 from datetime import datetime
 from pathlib import Path
@@ -28,6 +30,9 @@ from core.sessions import (
     has_project_context,
 )
 from core.tools.base import ToolRegistry
+
+logger = logging.getLogger("xagent.agent")
+logger.addHandler(logging.NullHandler())
 
 
 class AgentSession:
@@ -186,6 +191,9 @@ class AgentSession:
             return
 
         self._history.append({"role": "user", "content": text})
+        logger.info(
+            "turn_start chars=%d history_messages=%d", len(text), len(self._history)
+        )
         yield AgentEvent(type=AgentEventType.USER_MESSAGE, text=text)
 
         for _ in range(self._max_tool_rounds):
@@ -195,6 +203,7 @@ class AgentSession:
                     self._tools.schemas(),
                 )
             except Exception as exc:
+                logger.exception("llm_call_failed")
                 yield AgentEvent(
                     type=AgentEventType.ERROR,
                     text=f"调用模型失败: {exc}",
@@ -208,6 +217,11 @@ class AgentSession:
             if not reply.tool_calls:
                 content = reply.content or ""
                 self._history.append({"role": "assistant", "content": content})
+                logger.info(
+                    "turn_complete reply_chars=%d history_messages=%d",
+                    len(content),
+                    len(self._history),
+                )
                 yield AgentEvent(
                     type=AgentEventType.ASSISTANT_MESSAGE,
                     text=content,
@@ -239,8 +253,20 @@ class AgentSession:
                         {"ok": False, "error": parse_error},
                         ensure_ascii=False,
                     )
+                    logger.warning(
+                        "tool_arguments_invalid name=%s error=%s",
+                        call.name,
+                        parse_error,
+                    )
                 else:
+                    started = time.perf_counter()
                     result = await self._tools.aexecute(call.name, arguments or {})
+                    logger.info(
+                        "tool_call name=%s duration_ms=%.1f result_chars=%d",
+                        call.name,
+                        (time.perf_counter() - started) * 1000,
+                        len(result),
+                    )
 
                 self._history.append(
                     {

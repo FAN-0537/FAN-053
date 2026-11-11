@@ -19,6 +19,16 @@ def test_leap_year_rules() -> None:
     assert is_leap_year(2023) is False
 
 
+def test_current_datetime_comes_from_system_clock() -> None:
+    from core.tools.misc_tools import get_current_datetime
+
+    payload = get_current_datetime()
+    assert len(payload["date"]) == 10
+    assert payload["date"].count("-") == 2
+    assert len(payload["time"]) == 8
+    assert payload["iso"]
+
+
 def test_filesystem_covers_ten_semantics(tmp_path) -> None:
     service = FileSystemService(tmp_path)
 
